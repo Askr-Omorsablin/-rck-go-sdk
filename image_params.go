@@ -1,6 +1,4 @@
-package image
-
-import "github.com/Askr-Omorsablin/rck-go-sdk/core"
+package rck
 
 // GenerateParams defines the parameters for generating an image.
 type GenerateParams struct {
@@ -13,16 +11,16 @@ type GenerateParams struct {
 // Validate checks if the parameters are valid.
 func (p *GenerateParams) Validate() error {
 	if p.Input == "" {
-		return core.NewValidationError("Input", "is required")
+		return NewValidationError("Input", "is required")
 	}
 	if p.FrameComposition == "" {
-		return core.NewValidationError("FrameComposition", "is required")
+		return NewValidationError("FrameComposition", "is required")
 	}
 	if p.Lighting == "" {
-		return core.NewValidationError("Lighting", "is required")
+		return NewValidationError("Lighting", "is required")
 	}
 	if p.Style == "" {
-		return core.NewValidationError("Style", "is required")
+		return NewValidationError("Style", "is required")
 	}
 	return nil
 }

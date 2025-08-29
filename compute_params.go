@@ -1,6 +1,4 @@
-package compute
-
-import "github.com/Askr-Omorsablin/rck-go-sdk/core"
+package rck
 
 // Example is a pair of input and structured output for learning.
 type Example struct {
@@ -20,13 +18,13 @@ type StructuredTransformParams struct {
 // Validate checks if the parameters are valid.
 func (p *StructuredTransformParams) Validate() error {
 	if p.Input == "" {
-		return core.NewValidationError("Input", "is required")
+		return NewValidationError("Input", "is required")
 	}
 	if p.FunctionLogic == "" {
-		return core.NewValidationError("FunctionLogic", "is required")
+		return NewValidationError("FunctionLogic", "is required")
 	}
 	if p.OutputDataClass == nil {
-		return core.NewValidationError("OutputDataClass", "is required")
+		return NewValidationError("OutputDataClass", "is required")
 	}
 	return nil
 }
@@ -42,16 +40,16 @@ type AnalyzeParams struct {
 // Validate checks if the parameters are valid.
 func (p *AnalyzeParams) Validate() error {
 	if p.Input == "" {
-		return core.NewValidationError("Input", "is required")
+		return NewValidationError("Input", "is required")
 	}
 	if p.FunctionLogic == "" {
-		return core.NewValidationError("FunctionLogic", "is required")
+		return NewValidationError("FunctionLogic", "is required")
 	}
 	if p.OutputFormat == "" {
-		return core.NewValidationError("OutputFormat", "is required")
+		return NewValidationError("OutputFormat", "is required")
 	}
 	if !HasSchema(p.OutputFormat) {
-		return core.NewValidationError("OutputFormat", "unknown schema name")
+		return NewValidationError("OutputFormat", "unknown schema name")
 	}
 	return nil
 }
@@ -66,10 +64,10 @@ type TranslateParams struct {
 // Validate checks if the parameters are valid.
 func (p *TranslateParams) Validate() error {
 	if p.Input == "" {
-		return core.NewValidationError("Input", "is required")
+		return NewValidationError("Input", "is required")
 	}
 	if p.TargetLanguage == "" {
-		return core.NewValidationError("TargetLanguage", "is required")
+		return NewValidationError("TargetLanguage", "is required")
 	}
 	return nil
 }
@@ -85,10 +83,10 @@ type LearnFromExamplesParams struct {
 // Validate checks if the parameters are valid.
 func (p *LearnFromExamplesParams) Validate() error {
 	if p.Input == "" {
-		return core.NewValidationError("Input", "is required")
+		return NewValidationError("Input", "is required")
 	}
 	if len(p.Examples) < 1 {
-		return core.NewValidationError("Examples", "requires at least one example")
+		return NewValidationError("Examples", "requires at least one example")
 	}
 	return nil
 }
@@ -104,10 +102,10 @@ type GenerateTextParams struct {
 // Validate checks if the parameters are valid.
 func (p *GenerateTextParams) Validate() error {
 	if p.Input == "" {
-		return core.NewValidationError("Input", "is required")
+		return NewValidationError("Input", "is required")
 	}
 	if p.FunctionLogic == "" {
-		return core.NewValidationError("FunctionLogic", "is required")
+		return NewValidationError("FunctionLogic", "is required")
 	}
 	return nil
 }
@@ -128,10 +126,10 @@ type AutoParams struct {
 // Validate checks if the parameters are valid.
 func (p *AutoParams) Validate() error {
 	if p.Input == "" {
-		return core.NewValidationError("Input", "is required")
+		return NewValidationError("Input", "is required")
 	}
 	if p.FunctionLogic == "" && len(p.Examples) == 0 && p.FrameComposition == "" && p.Lighting == "" && p.Style == "" {
-		return core.NewValidationError("Logic", "At least one logic-defining property is required (FunctionLogic, Examples, or image parameters)")
+		return NewValidationError("Logic", "At least one logic-defining property is required (FunctionLogic, Examples, or image parameters)")
 	}
 	return nil
 }

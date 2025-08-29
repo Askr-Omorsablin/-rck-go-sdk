@@ -1,4 +1,4 @@
-package compute
+package rck
 
 import (
 	"context"
@@ -6,25 +6,22 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-
-	"github.com/Askr-Omorsablin/rck-go-sdk/core"
-	"github.com/Askr-Omorsablin/rck-go-sdk/image"
 )
 
 const unifiedEndpoint = "/calculs"
 
 // Kernel provides access to the RCK compute functionalities.
 type Kernel struct {
-	client *core.HttpClient
+	client *HttpClient
 }
 
 // NewKernel creates a new Kernel instance.
-func NewKernel(client *core.HttpClient) *Kernel {
+func NewKernel(client *HttpClient) *Kernel {
 	return &Kernel{client: client}
 }
 
-func (k *Kernel) execute(ctx context.Context, program core.APIProgram, config *core.APIConfig) (*core.UnifiedAPIResponse, error) {
-	payload := &core.UnifiedAPIRequest{
+func (k *Kernel) execute(ctx context.Context, program APIProgram, config *APIConfig) (*UnifiedAPIResponse, error) {
+	payload := &UnifiedAPIRequest{
 		Program: program,
 		Config:  config,
 	}
@@ -53,7 +50,7 @@ func (k *Kernel) Auto(ctx context.Context, params AutoParams) (interface{}, erro
 		return nil, err
 	}
 
-	var pipeline core.APIPipeline
+	var pipeline APIPipeline
 	pipeline.FunctionLogic = params.FunctionLogic
 	pipeline.CustomLogic = params.CustomLogic
 	pipeline.FrameComposition = params.FrameComposition
@@ -69,19 +66,19 @@ func (k *Kernel) Auto(ctx context.Context, params AutoParams) (interface{}, erro
 	}
 
 	if len(params.Examples) > 0 {
-		apiExamples := make([]core.APIExample, len(params.Examples))
+		apiExamples := make([]APIExample, len(params.Examples))
 		for i, ex := range params.Examples {
 			outputBytes, err := json.Marshal(ex.Output)
 			if err != nil {
 				return nil, fmt.Errorf("failed to marshal example output at index %d: %w", i, err)
 			}
-			apiExamples[i] = core.APIExample{Input: ex.Input, Output: string(outputBytes)}
+			apiExamples[i] = APIExample{Input: ex.Input, Output: string(outputBytes)}
 		}
 		pipeline.Examples = apiExamples
 	}
 
-	program := core.APIProgram{
-		Input: core.APIInput{
+	program := APIProgram{
+		Input: APIInput{
 			Input:    params.Input,
 			Resource: params.Resource,
 		},
@@ -94,7 +91,7 @@ func (k *Kernel) Auto(ctx context.Context, params AutoParams) (interface{}, erro
 	}
 	// Handle cases where the API returns a success status but an empty output.
 	if response.Output == nil || string(response.Output) == "null" {
-		return nil, &core.APIError{
+		return nil, &APIError{
 			StatusCode:   200,
 			ResponseData: response,
 		}
@@ -109,7 +106,7 @@ func (k *Kernel) Auto(ctx context.Context, params AutoParams) (interface{}, erro
 	case string:
 		return v, nil
 	case []string:
-		return image.NewImageResponse(v, *response), nil
+		return NewImageResponse(v, *response), nil
 	case map[string]interface{}:
 		return NewComputeResponse(*response), nil
 	default:
@@ -118,7 +115,7 @@ func (k *Kernel) Auto(ctx context.Context, params AutoParams) (interface{}, erro
 }
 
 // StructuredTransform performs a data transformation based on a schema and logic.
-func (k *Kernel) StructuredTransform(ctx context.Context, params StructuredTransformParams, config ...core.ComputeConfig) (*ComputeResponse, error) {
+func (k *Kernel) StructuredTransform(ctx context.Context, params StructuredTransformParams, config ...ComputeConfig) (*ComputeResponse, error) {
 	if err := params.Validate(); err != nil {
 		return nil, err
 	}
@@ -128,18 +125,18 @@ func (k *Kernel) StructuredTransform(ctx context.Context, params StructuredTrans
 		return nil, err
 	}
 
-	program := core.APIProgram{
-		Input: core.APIInput{
+	program := APIProgram{
+		Input: APIInput{
 			Input:    params.Input,
 			Resource: params.Resource,
 		},
-		Pipeline: core.APIPipeline{
+		Pipeline: APIPipeline{
 			OutputDataClass: outputClassStr,
 			FunctionLogic:   params.FunctionLogic,
 			CustomLogic:     params.CustomLogic,
 		},
 	}
-	apiConfig := &core.APIConfig{Engine: core.EngineStandard}
+	apiConfig := &APIConfig{Engine: EngineStandard}
 	if len(config) > 0 {
 		apiConfig.ComputeConfig = config[0]
 	}
@@ -152,30 +149,30 @@ func (k *Kernel) StructuredTransform(ctx context.Context, params StructuredTrans
 }
 
 // LearnFromExamples learns a transformation from input-output examples.
-func (k *Kernel) LearnFromExamples(ctx context.Context, params LearnFromExamplesParams, config ...core.ComputeConfig) (*ComputeResponse, error) {
+func (k *Kernel) LearnFromExamples(ctx context.Context, params LearnFromExamplesParams, config ...ComputeConfig) (*ComputeResponse, error) {
 	if err := params.Validate(); err != nil {
 		return nil, err
 	}
-	apiExamples := make([]core.APIExample, len(params.Examples))
+	apiExamples := make([]APIExample, len(params.Examples))
 	for i, ex := range params.Examples {
 		outputBytes, err := json.Marshal(ex.Output)
 		if err != nil {
 			return nil, fmt.Errorf("failed to marshal example output at index %d: %w", i, err)
 		}
-		apiExamples[i] = core.APIExample{Input: ex.Input, Output: string(outputBytes)}
+		apiExamples[i] = APIExample{Input: ex.Input, Output: string(outputBytes)}
 	}
 
-	program := core.APIProgram{
-		Input: core.APIInput{
+	program := APIProgram{
+		Input: APIInput{
 			Input:    params.Input,
 			Resource: params.Resource,
 		},
-		Pipeline: core.APIPipeline{
+		Pipeline: APIPipeline{
 			Examples:    apiExamples,
 			CustomLogic: params.CustomLogic,
 		},
 	}
-	apiConfig := &core.APIConfig{Engine: core.EngineAttractor}
+	apiConfig := &APIConfig{Engine: EngineAttractor}
 	if len(config) > 0 {
 		apiConfig.ComputeConfig = config[0]
 	}
@@ -188,21 +185,21 @@ func (k *Kernel) LearnFromExamples(ctx context.Context, params LearnFromExamples
 }
 
 // GenerateText generates free-form text based on a prompt and logic.
-func (k *Kernel) GenerateText(ctx context.Context, params GenerateTextParams, config ...core.ComputeConfig) (string, error) {
+func (k *Kernel) GenerateText(ctx context.Context, params GenerateTextParams, config ...ComputeConfig) (string, error) {
 	if err := params.Validate(); err != nil {
 		return "", err
 	}
-	program := core.APIProgram{
-		Input: core.APIInput{
+	program := APIProgram{
+		Input: APIInput{
 			Input:    params.Input,
 			Resource: params.Resource,
 		},
-		Pipeline: core.APIPipeline{
+		Pipeline: APIPipeline{
 			FunctionLogic: params.FunctionLogic,
 			CustomLogic:   params.CustomLogic,
 		},
 	}
-	apiConfig := &core.APIConfig{Engine: core.EnginePure}
+	apiConfig := &APIConfig{Engine: EnginePure}
 	if len(config) > 0 {
 		apiConfig.ComputeConfig = config[0]
 	}
@@ -219,13 +216,13 @@ func (k *Kernel) GenerateText(ctx context.Context, params GenerateTextParams, co
 }
 
 // Analyze performs structured analysis using a predefined output format.
-func (k *Kernel) Analyze(ctx context.Context, params AnalyzeParams, config ...core.ComputeConfig) (*ComputeResponse, error) {
+func (k *Kernel) Analyze(ctx context.Context, params AnalyzeParams, config ...ComputeConfig) (*ComputeResponse, error) {
 	if err := params.Validate(); err != nil {
 		return nil, err
 	}
 	schema, ok := GetPredefinedSchema(params.OutputFormat)
 	if !ok {
-		return nil, core.NewValidationError("OutputFormat", "unknown schema name")
+		return nil, NewValidationError("OutputFormat", "unknown schema name")
 	}
 	transformParams := StructuredTransformParams{
 		Input:           params.Input,
@@ -237,7 +234,7 @@ func (k *Kernel) Analyze(ctx context.Context, params AnalyzeParams, config ...co
 }
 
 // Translate translates text to a target language.
-func (k *Kernel) Translate(ctx context.Context, params TranslateParams, config ...core.ComputeConfig) (*ComputeResponse, error) {
+func (k *Kernel) Translate(ctx context.Context, params TranslateParams, config ...ComputeConfig) (*ComputeResponse, error) {
 	if err := params.Validate(); err != nil {
 		return nil, err
 	}
@@ -271,6 +268,6 @@ func stringifyOutputClass(outputClass interface{}) (string, error) {
 		}
 		return string(bytes), nil
 	default:
-		return "", core.NewValidationError("OutputDataClass", "must be a string or a map[string]interface{}")
+		return "", NewValidationError("OutputDataClass", "must be a string or a map[string]interface{}")
 	}
 }

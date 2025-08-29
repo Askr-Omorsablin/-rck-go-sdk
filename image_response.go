@@ -1,11 +1,9 @@
-package image
+package rck
 
 import (
 	"encoding/base64"
 	"regexp"
 	"strings"
-
-	"github.com/Askr-Omorsablin/rck-go-sdk/core"
 )
 
 var dataURLRegex = regexp.MustCompile(`^data:(.+?);base64,(.*)$`)
@@ -22,11 +20,11 @@ type ImageInfo struct {
 type ImageResponse struct {
 	Images  []ImageInfo
 	Count   int
-	RawData core.UnifiedAPIResponse
+	RawData UnifiedAPIResponse
 }
 
 // NewImageResponse creates an ImageResponse from the API output.
-func NewImageResponse(dataUrls []string, rawData core.UnifiedAPIResponse) *ImageResponse {
+func NewImageResponse(dataUrls []string, rawData UnifiedAPIResponse) *ImageResponse {
 	images := make([]ImageInfo, 0, len(dataUrls))
 	for i, url := range dataUrls {
 		matches := dataURLRegex.FindStringSubmatch(url)

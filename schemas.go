@@ -1,9 +1,7 @@
-package compute
+package rck
 
 import (
 	"encoding/json"
-
-	"github.com/Askr-Omorsablin/rck-go-sdk/core"
 )
 
 var predefinedSchemas = map[string]string{
@@ -63,7 +61,7 @@ func GetPredefinedSchema(schemaName string) (string, bool) {
 func GetPredefinedSchemaAsMap(schemaName string) (map[string]interface{}, error) {
 	schemaStr, ok := GetPredefinedSchema(schemaName)
 	if !ok {
-		return nil, core.NewValidationError("schemaName", "unknown schema name")
+		return nil, NewValidationError("schemaName", "unknown schema name")
 	}
 
 	var schemaMap map[string]interface{}

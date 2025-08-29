@@ -1,18 +1,16 @@
-package compute
+package rck
 
 import (
 	"encoding/json"
-
-	"github.com/Askr-Omorsablin/rck-go-sdk/core"
 )
 
 // ComputeResponse wraps the structured data returned by the compute API.
 type ComputeResponse struct {
-	rawData core.UnifiedAPIResponse
+	rawData UnifiedAPIResponse
 }
 
 // NewComputeResponse creates a response from the raw API output.
-func NewComputeResponse(raw core.UnifiedAPIResponse) *ComputeResponse {
+func NewComputeResponse(raw UnifiedAPIResponse) *ComputeResponse {
 	return &ComputeResponse{rawData: raw}
 }
 

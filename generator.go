@@ -1,4 +1,4 @@
-package image
+package rck
 
 import (
 	"context"
@@ -6,19 +6,15 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-
-	"github.com/Askr-Omorsablin/rck-go-sdk/core"
 )
-
-const unifiedEndpoint = "/calculs"
 
 // Generator provides access to the RCK image generation functionalities.
 type Generator struct {
-	client *core.HttpClient
+	client *HttpClient
 }
 
 // NewGenerator creates a new Generator instance.
-func NewGenerator(client *core.HttpClient) *Generator {
+func NewGenerator(client *HttpClient) *Generator {
 	return &Generator{client: client}
 }
 
@@ -28,11 +24,11 @@ func (g *Generator) Generate(ctx context.Context, params GenerateParams) (*Image
 		return nil, err
 	}
 
-	payload := &core.UnifiedAPIRequest{
-		Config: &core.APIConfig{Engine: core.EngineImage},
-		Program: core.APIProgram{
-			Input: core.APIInput{Input: params.Input},
-			Pipeline: core.APIPipeline{
+	payload := &UnifiedAPIRequest{
+		Config: &APIConfig{Engine: EngineImage},
+		Program: APIProgram{
+			Input: APIInput{Input: params.Input},
+			Pipeline: APIPipeline{
 				FrameComposition: params.FrameComposition,
 				Lighting:         params.Lighting,
 				Style:            params.Style,
@@ -47,7 +43,7 @@ func (g *Generator) Generate(ctx context.Context, params GenerateParams) (*Image
 
 	var output []string
 	if err := json.Unmarshal(rawResponse.Output, &output); err != nil {
-		return nil, &core.APIError{
+		return nil, &APIError{
 			StatusCode:   200, // Assuming 200 OK but bad format
 			ResponseData: rawResponse,
 		}

@@ -1,4 +1,4 @@
-package core
+package rck
 
 import (
 	"encoding/json"
